@@ -4,6 +4,10 @@ Native macOS menu bar app to track usage quotas across **Claude Code**, **Codex 
 
 **Status:** MVP implemented — menu bar app with Claude, Codex, and Cursor quota rows.
 
+## Screenshot
+
+![AI Quota Tray menu bar popover](docs/screenshots/tray-popover.png)
+
 ## Docs
 
 | File | Purpose |
