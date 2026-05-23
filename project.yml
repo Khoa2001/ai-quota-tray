@@ -1,0 +1,39 @@
+name: AIQuotaTray
+
+options:
+  minimumXcodeVersion: "16.0"
+  deploymentTarget:
+    macOS: "14.0"
+  groupSortPosition: top
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    PRODUCT_BUNDLE_IDENTIFIER: com.local.AIQuotaTray
+
+targets:
+  AIQuotaTray:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: AIQuotaTray
+        excludes:
+          - Resources/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.local.AIQuotaTray
+        INFOPLIST_FILE: AIQuotaTray/Resources/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        ENABLE_HARDENED_RUNTIME: NO
+        ENABLE_APP_SANDBOX: NO
+        OTHER_LDFLAGS: "-lsqlite3"
+    entitlements:
+      path: AIQuotaTray/Resources/AIQuotaTray.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.network.client: true
