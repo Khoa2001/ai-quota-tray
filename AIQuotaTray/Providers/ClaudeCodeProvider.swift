@@ -15,20 +15,27 @@ struct ClaudeCodeProvider: QuotaProvider {
         let (used, localReset) = await localResult
         let headers = try? await apiResult
 
-        // Utilization from API gives us an auto-detected cap and accurate reset time.
-        let utilization = headers?.utilization5h   // fraction 0–1
-        let apiReset    = headers?.reset5h
+        if let utilization = headers?.utilization5h {
+            // API responded — express as percentage (matches Cursor/Codex display style).
+            // utilization=0 (fully reset) correctly yields fraction=0 and shows an empty bar.
+            return QuotaSnapshot(
+                provider: .claude,
+                used: utilization * 100,
+                cap: 100,
+                unit: "%",
+                resetsAt: headers?.reset5h ?? localReset,
+                fetchedAt: Date(),
+                error: nil
+            )
+        }
 
-        let cap: Double? = (utilization != nil && utilization! > 0)
-            ? (used / utilization!)
-            : nil
-
+        // API unavailable — fall back to raw local token counts (no cap, no bar).
         return QuotaSnapshot(
             provider: .claude,
             used: used,
-            cap: cap,
+            cap: nil,
             unit: "tokens",
-            resetsAt: apiReset ?? localReset,
+            resetsAt: localReset,
             fetchedAt: Date(),
             error: nil
         )
