@@ -22,22 +22,72 @@ Native macOS menu bar app to track usage quotas across **Claude Code**, **Codex 
 - **Stack:** SwiftUI + `MenuBarExtra`, macOS 14+, no third-party deps
 - **Sandbox:** off for v1 (read `~/.claude`, `~/.codex`, Cursor cookie store)
 
-## Build
+## Install & run
+
+You do **not** need to open Xcode. Build from the terminal and install like any other Mac app.
+
+### Prerequisites
+
+- macOS 14+
+- [Xcode Command Line Tools](https://developer.apple.com/xcode/resources/) (`xcodebuild` must be on your `PATH`)
+- [xcodegen](https://github.com/yonaskolb/XcodeGen) — only when editing `project.yml` or adding/removing source files:
 
 ```bash
-# One-time: install xcodegen
 brew install xcodegen
+```
 
-# Regenerate .xcodeproj after editing project.yml or adding files
-xcodegen generate
+### Build and install to Applications
 
-# Build (ad-hoc, no signing required)
+From the repo root:
+
+```bash
 xcodebuild -project AIQuotaTray.xcodeproj -scheme AIQuotaTray \
-  -configuration Debug build \
-  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+  -configuration Release \
+  -derivedDataPath build/DerivedData \
+  build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 
-# Run directly from the build output
-open ~/Library/Developer/Xcode/DerivedData/AIQuotaTray-*/Build/Products/Debug/AIQuotaTray.app
+cp -R build/DerivedData/Build/Products/Release/AIQuotaTray.app /Applications/
+```
+
+The app is ad-hoc signed (no Apple Developer certificate). On first launch, macOS may block it — go to **System Settings → Privacy & Security** and click **Open Anyway** if prompted.
+
+### Run
+
+After install, launch it like any other app:
+
+```bash
+open /Applications/AIQuotaTray.app
+```
+
+Or use Spotlight (`Cmd+Space` → “AI Quota Tray”) or Finder → **Applications**.
+
+The app lives in the **menu bar** only (`LSUIElement` — no Dock icon). Click the tray icon to open the quota popover.
+
+### Rebuild after code changes
+
+Quit the running app, then repeat the **Build and install** commands above. `cp -R` overwrites the existing `/Applications/AIQuotaTray.app`.
+
+### Launch at login
+
+Open the tray popover → **Settings** (gear icon) → enable **Launch at login**.
+
+## Development
+
+Regenerate the Xcode project after editing `project.yml` or changing the file layout:
+
+```bash
+xcodegen generate
+```
+
+For a quick Debug build without installing (output stays under `build/DerivedData`):
+
+```bash
+xcodebuild -project AIQuotaTray.xcodeproj -scheme AIQuotaTray \
+  -configuration Debug \
+  -derivedDataPath build/DerivedData \
+  build CODE_SIGN_IDENTITY="-" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+
+open build/DerivedData/Build/Products/Debug/AIQuotaTray.app
 ```
 
 ## First-run checklist
@@ -45,8 +95,6 @@ open ~/Library/Developer/Xcode/DerivedData/AIQuotaTray-*/Build/Products/Debug/AI
 1. **Sign in** to Claude Code, Codex CLI, and Cursor on this Mac (tokens/logs are read locally).
 
 2. **Cursor** — keep Cursor signed in; the app reads `cursorAuth/accessToken` from Cursor’s `state.vscdb` or Keychain.
-
-3. **Launch at login** (optional) — enable in Settings (gear icon) in the tray popover.
 
 ## Project structure
 
