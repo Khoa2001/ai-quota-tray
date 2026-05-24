@@ -3,7 +3,6 @@ import SwiftUI
 struct TrayContentView: View {
 
     @EnvironmentObject private var store: QuotaStore
-    @State private var showSettings = false
     @State private var refreshRotation: Double = 0
 
     var body: some View {
@@ -40,9 +39,6 @@ struct TrayContentView: View {
 
                 Spacer()
 
-                FooterIconButton(systemName: "gearshape", help: "Settings") {
-                    showSettings = true
-                }
                 FooterIconButton(systemName: "power", help: "Quit") {
                     NSApplication.shared.terminate(nil)
                 }
@@ -50,14 +46,11 @@ struct TrayContentView: View {
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
         }
-        .frame(width: 280)
         .animation(.easeInOut(duration: 0.2), value: store.snapshots.count)
+        .frame(width: 280)
         .task {
-            await store.refresh()
+            if store.isStale { await store.refresh() }
             store.startAutoRefresh()
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView().environmentObject(store)
         }
     }
 }

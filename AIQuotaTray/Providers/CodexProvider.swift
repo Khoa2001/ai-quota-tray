@@ -51,16 +51,12 @@ struct CodexProvider: QuotaProvider {
             let primary    = rateLimits?["primary"]   as? [String: Any]
             let secondary  = rateLimits?["secondary"] as? [String: Any]
 
-            // Prefer primary (5h) if its window hasn't expired yet; else fall back to secondary (7d).
-            let now = Date()
+            // Always prefer primary (5h) window; only fall back to secondary (7d) if primary has no data.
             let chosen: [String: Any]?
-            let primaryResets = (primary?["resets_at"] as? Double).map { Date(timeIntervalSince1970: $0) }
-            if let pr = primaryResets, pr > now {
-                chosen = primary
-            } else if let sec = secondary {
-                chosen = sec
+            if let pri = primary {
+                chosen = pri
             } else {
-                chosen = primary   // use primary even if expired so we still have some data
+                chosen = secondary
             }
 
             guard let window = chosen else { continue }

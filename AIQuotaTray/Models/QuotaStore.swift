@@ -7,6 +7,7 @@ final class QuotaStore: ObservableObject {
     @Published var isRefreshing = false
 
     private var autoRefreshTask: Task<Void, Never>?
+    private(set) var lastRefreshedAt: Date?
 
     // MARK: - Lifecycle
 
@@ -14,9 +15,7 @@ final class QuotaStore: ObservableObject {
         autoRefreshTask?.cancel()
         autoRefreshTask = Task { [weak self] in
             while !Task.isCancelled {
-                let interval = UserDefaults.standard.integer(forKey: "refreshInterval")
-                let seconds  = interval > 0 ? Double(interval) : 60.0
-                try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+                try? await Task.sleep(nanoseconds: UInt64(Self.refreshIntervalSeconds * 1_000_000_000))
                 guard !Task.isCancelled else { break }
                 await self?.refresh()
             }
@@ -30,6 +29,13 @@ final class QuotaStore: ObservableObject {
 
     // MARK: - Refresh
 
+    private static let refreshIntervalSeconds: Double = 60
+
+    var isStale: Bool {
+        guard let last = lastRefreshedAt else { return true }
+        return Date().timeIntervalSince(last) >= Self.refreshIntervalSeconds
+    }
+
     func refresh() async {
         guard !isRefreshing else { return }
         isRefreshing = true
@@ -40,9 +46,19 @@ final class QuotaStore: ObservableObject {
         async let r = fetch(.cursor) { try await CursorProvider().fetch() }
 
         let (claude, codex, cursor) = await (c, d, r)
-        snapshots[.claude] = claude
-        snapshots[.codex]  = codex
-        snapshots[.cursor] = cursor
+
+        // Never overwrite a valid snapshot with an error — keep showing stale data instead.
+        func apply(_ new: QuotaSnapshot, for provider: Provider) {
+            if new.error != nil, let existing = snapshots[provider], existing.error == nil {
+                return
+            }
+            snapshots[provider] = new
+        }
+
+        apply(claude, for: .claude)
+        apply(codex,  for: .codex)
+        apply(cursor, for: .cursor)
+        lastRefreshedAt = Date()
     }
 
     // MARK: - Helpers

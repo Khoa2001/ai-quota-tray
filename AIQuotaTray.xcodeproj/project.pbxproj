@@ -19,7 +19,6 @@
 		991CF43C18809CC268CED30E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B7C375F3FF719A85060224DC /* Assets.xcassets */; };
 		BCA85C4464643641B2EC4DCD /* AIQuotaTrayApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 026A064F34154B3952B030E9 /* AIQuotaTrayApp.swift */; };
 		C9A4F02ACAAC40AE8D182739 /* QuotaProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F0C4813042278406C5A7B2E /* QuotaProvider.swift */; };
-		EBB1CBB853E80EF5C60370E0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8147976B0E401C9454A26C9 /* SettingsView.swift */; };
 		F90DE4D2447261D32456CC44 /* QuotaSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63A6EF71275D43A94C7F949B /* QuotaSnapshot.swift */; };
 /* End PBXBuildFile section */
 
@@ -39,7 +38,6 @@
 		B7C375F3FF719A85060224DC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0AA1D036C74F224D4222469 /* QuotaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuotaStore.swift; sourceTree = "<group>"; };
 		D16C4A5E537A6F1D978CAFB5 /* Provider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
-		D8147976B0E401C9454A26C9 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -84,7 +82,6 @@
 			isa = PBXGroup;
 			children = (
 				1EF274ED178F841E6D0A18DD /* QuotaRow.swift */,
-				D8147976B0E401C9454A26C9 /* SettingsView.swift */,
 				A9A0DBE9BD6FDA5D9FA3DA62 /* TrayContentView.swift */,
 			);
 			path = UI;
@@ -202,7 +199,6 @@
 				8C9C88AB3040571BA65B119F /* QuotaRow.swift in Sources */,
 				F90DE4D2447261D32456CC44 /* QuotaSnapshot.swift in Sources */,
 				52864E49674FB3BD338A89DD /* QuotaStore.swift in Sources */,
-				EBB1CBB853E80EF5C60370E0 /* SettingsView.swift in Sources */,
 				427115C1C42907132B3DF11C /* TrayContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
