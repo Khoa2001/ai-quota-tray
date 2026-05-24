@@ -37,7 +37,12 @@ struct CodexProvider: QuotaProvider {
 
     // MARK: - Parsing
 
+    private static let windowDuration: TimeInterval = 5 * 3600
+
     private func lastTokenCountSnapshot(in file: URL) -> QuotaSnapshot? {
+        let fileMod = (try? file.resourceValues(forKeys: [.contentModificationDateKey]))?
+            .contentModificationDate
+
         let objects = JSONLReader.objects(at: file)
         var best: QuotaSnapshot?
 
@@ -48,22 +53,25 @@ struct CodexProvider: QuotaProvider {
             else { continue }
 
             let rateLimits = payload["rate_limits"] as? [String: Any]
-            let primary    = rateLimits?["primary"]   as? [String: Any]
-            let secondary  = rateLimits?["secondary"] as? [String: Any]
+            guard let window = rateLimits?["primary"] as? [String: Any] else { continue }
 
-            // Always prefer primary (5h) window; only fall back to secondary (7d) if primary has no data.
-            let chosen: [String: Any]?
-            if let pri = primary {
-                chosen = pri
-            } else {
-                chosen = secondary
-            }
+            let now = Date()
 
-            guard let window = chosen else { continue }
-
-            let usedPercent = (window["used_percent"] as? Double) ?? 0
             let resetsEpoch = (window["resets_at"]    as? Double) ?? 0
-            let resetsAt    = resetsEpoch > 0 ? Date(timeIntervalSince1970: resetsEpoch) : nil
+            let apiReset    = resetsEpoch > 0 ? Date(timeIntervalSince1970: resetsEpoch) : nil
+            let windowReset = apiReset.map { $0 > now } ?? false
+
+            let usedPercent = windowReset ? ((window["used_percent"] as? Double) ?? 0) : 0
+
+            // Use the API reset time if still future; otherwise fall back to file-mod + window duration.
+            let resetsAt: Date?
+            if let r = apiReset, r > now {
+                resetsAt = r
+            } else if let mod = fileMod, mod > now.addingTimeInterval(-Self.windowDuration) {
+                resetsAt = mod.addingTimeInterval(Self.windowDuration)
+            } else {
+                resetsAt = nil
+            }
 
             best = QuotaSnapshot(
                 provider: .codex,
